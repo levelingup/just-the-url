@@ -1,118 +1,167 @@
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-
-const inter = Inter({ subsets: ['latin'] })
+import Head from "next/head";
+import { useState } from "react";
 
 export default function Home() {
+  const [input, setInput] = useState("");
+  const [output, setOutput] = useState([]);
+  const [addDomainPrefix, setAddDomainPrefix] = useState(false);
+  const [removeDuplicates, setRemoveDuplicates] = useState(false);
+  const [onlyDomain, setOnlyDomain] = useState(false);
+  const [removeSubdomains, setRemoveSubdomains] = useState(false);
+
+  const getMainDomain = (hostname) => {
+    const parts = hostname.split(".");
+    return parts.length > 2 ? parts.slice(-2).join(".") : hostname;
+  };
+
+  const processUrls = () => {
+    // If no input, set an error and return early
+    if (!input.trim()) {
+      setOutput(["No input provided."]);
+      return;
+    }
+    let urls = input.split("\n");
+
+    let processedUrls = urls
+      .map((url) => {
+        try {
+          const { protocol, hostname, pathname, search, hash } = new URL(url);
+          let domain = removeSubdomains ? getMainDomain(hostname) : hostname;
+          let processedUrl = onlyDomain
+            ? domain
+            : `${protocol}//${domain}${pathname}${search}${hash}`;
+          if (addDomainPrefix) {
+            processedUrl = `domain:${processedUrl}`;
+          }
+          return processedUrl;
+        } catch (error) {
+          return null;
+        }
+      })
+      .filter(Boolean);
+
+    if (removeDuplicates) {
+      processedUrls = [...new Set(processedUrls)];
+    }
+
+    setOutput(processedUrls);
+  };
+
   return (
-    <main
-      className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
-    >
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">pages/index.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <>
+      <Head>
+        <title>
+          Just the URL - Simplify, Deduplicate and Modify URLs in a Snap
+        </title>
+      </Head>
+      <div className="min-h-screen m-auto mt-12" style={{ width: 800 }}>
+        <div className="p-6 bg-stone-200 rounded-2xl">
+          <h1 className="text-4xl mb-8 border-b pb-6 border-black">Welcome to Just the URL</h1>
+          <p className="mb-6">
+            A unique tool designed to make your work with URLs easier and more
+            efficient. Whether you are an SEO professional, a developer, or a
+            digital marketer, this service is tailored for you.
+          </p>
+          <h2 className="text-xl mb-3"><strong>Here's what you can do with our URL Processor:</strong></h2>
+
+          <ul className="mb-6">
+            <li>
+              <strong>Add Prefixes:</strong> Easily add "domain:" prefix to your list of URLs.
+            </li>
+            <li>
+            <strong>Remove Duplicates:</strong> Clean up your list by removing duplicate URLs
+              in just one click.
+            </li>
+            <li>
+            <strong>Extract Domains:</strong> Need only the domain names from your URLs? We've
+              got you covered.
+            </li>
+            <li>
+            <strong>Remove Subdomains:</strong> Simplify your URLs by removing any subdomains.
+            </li>
+          </ul>
+          <p className="mb-4">
+            Our service can be used for a wide range of applications such as
+            website auditing, link building, web development, and digital
+            marketing strategies. Save time and improve your productivity with
+            our URL Processor.
+          </p>
+          <p>
+            Start using the URL Processor today and see the difference it makes
+            in your workflow!
+          </p>
+        </div>
+        <div className="w-full mt-12 space-y-4">
+          <div className="flex flex-col">
+            <label>
+              <input
+                className="mr-2"
+                type="checkbox"
+                checked={addDomainPrefix}
+                onChange={(e) => setAddDomainPrefix(e.target.checked)}
+              />
+              Add "domain:" prefix
+            </label>
+            <label>
+              <input
+                className="mr-2"
+                type="checkbox"
+                checked={removeDuplicates}
+                onChange={(e) => setRemoveDuplicates(e.target.checked)}
+              />
+              Remove duplicates
+            </label>
+            <label>
+              <input
+                className="mr-2"
+                type="checkbox"
+                checked={onlyDomain}
+                onChange={(e) => setOnlyDomain(e.target.checked)}
+              />
+              Only show domain
+            </label>
+            <label>
+              <input
+                className="mr-2"
+                type="checkbox"
+                checked={removeSubdomains}
+                onChange={(e) => setRemoveSubdomains(e.target.checked)}
+              />
+              Remove subdomains
+            </label>
+          </div>
+          <div className="flex space-x-10">
+            <div className="w-1/2">
+              <textarea
+                className="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none"
+                rows="15"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Enter URLs, one per line"
+              />
+              <button
+                className="w-full mt-8 px-4 py-2 font-bold text-white bg-blue-500 rounded-full hover:bg-blue-700 focus:outline-none"
+                onClick={processUrls}
+              >
+                Process URLs
+              </button>
+            </div>
+            <ul className="space-y-2 w-1/2">
+              <textarea
+                className="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none"
+                rows="15"
+                value={output.join("\n")}
+                readOnly
+              />
+              {/* {output.map((url, index) => (
+              <li key={index} className="">
+                {url}
+              </li>
+            ))} */}
+            </ul>
+          </div>
         </div>
       </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700/10 after:dark:from-sky-900 after:dark:via-[#0141ff]/40 before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Discover and deploy boilerplate example Next.js&nbsp;projects.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+    </>
+  );
 }
