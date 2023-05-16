@@ -62,18 +62,18 @@ export default function Home() {
             efficient. Whether you are an SEO professional, a developer, or a
             digital marketer, this service is tailored for you.
           </p>
-          <h2 className="text-xl mb-3"><strong>Here's what you can do with our URL Processor:</strong></h2>
+          <h2 className="text-xl mb-3"><strong>Here&apos;s what you can do with our URL Processor:</strong></h2>
 
           <ul className="mb-6">
             <li>
-              <strong>Add Prefixes:</strong> Easily add "domain:" prefix to your list of URLs.
+              <strong>Add Prefixes:</strong> Easily add &quot;domain:&quot; prefix to your list of URLs.
             </li>
             <li>
             <strong>Remove Duplicates:</strong> Clean up your list by removing duplicate URLs
               in just one click.
             </li>
             <li>
-            <strong>Extract Domains:</strong> Need only the domain names from your URLs? We've
+            <strong>Extract Domains:</strong> Need only the domain names from your URLs? We&apos;ve
               got you covered.
             </li>
             <li>
@@ -100,7 +100,7 @@ export default function Home() {
                 checked={addDomainPrefix}
                 onChange={(e) => setAddDomainPrefix(e.target.checked)}
               />
-              Add "domain:" prefix
+              Add &quot;domain:&quot; prefix
             </label>
             <label>
               <input
