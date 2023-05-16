@@ -3,13 +3,13 @@ import { useState } from "react";
 
 export default function Home() {
   const [input, setInput] = useState("");
-  const [output, setOutput] = useState([]);
+  const [output, setOutput] = useState<string[]>([]);
   const [addDomainPrefix, setAddDomainPrefix] = useState(false);
   const [removeDuplicates, setRemoveDuplicates] = useState(false);
   const [onlyDomain, setOnlyDomain] = useState(false);
   const [removeSubdomains, setRemoveSubdomains] = useState(false);
 
-  const getMainDomain = (hostname) => {
+  const getMainDomain = (hostname: any) => {
     const parts = hostname.split(".");
     return parts.length > 2 ? parts.slice(-2).join(".") : hostname;
   };
@@ -134,7 +134,7 @@ export default function Home() {
             <div className="w-1/2">
               <textarea
                 className="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none"
-                rows="15"
+                rows={15}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Enter URLs, one per line"
@@ -149,7 +149,7 @@ export default function Home() {
             <ul className="space-y-2 w-1/2">
               <textarea
                 className="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none"
-                rows="15"
+                rows={15}
                 value={output.join("\n")}
                 readOnly
               />
